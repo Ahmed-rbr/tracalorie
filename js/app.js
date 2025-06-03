@@ -51,8 +51,11 @@ class CalorieTracker {
   _desplayCaloriesRemaining() {
     const caloriesRemaining = document.getElementById("calories-remaining");
     const remaining = this._caloriesLimit - this._totalCalories;
-
     caloriesRemaining.textContent = remaining;
+
+    const cardRemaining = caloriesRemaining.parentElement.parentElement;
+    cardRemaining.classList.add(remaining > 0 ? "bg-light" : "bg-danger");
+    cardRemaining.classList.remove(remaining > 0 ? "bg-danger" : "bg-light");
   }
   _desplayCaloriesProgress() {
     const progress = document.getElementById("calorie-progress");
@@ -91,9 +94,9 @@ class Workout {
 }
 const traker = new CalorieTracker();
 
-const meal1 = new Meal("tomat", 200);
-const workout1 = new Workout("jari", 67);
-const meal2 = new Meal("batat", 200);
+const meal1 = new Meal("tomat", 1git 000);
+const workout1 = new Workout("jari", 320);
+const meal2 = new Meal("batat", 750);
 
 traker.addMeal(meal1);
 traker.addMeal(meal2);
