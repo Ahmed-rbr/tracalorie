@@ -5,6 +5,10 @@ class CalorieTracker {
     this._meals = [];
     this._workouts = [];
     this._desplayCaloriesTotal();
+    this._desplayCaloriesConsumed();
+    this._desplayCalorieLimit();
+    this._desplayCaloriesBurned();
+    this._desplayCaloriesRemaining();
   }
   addMeal(meal) {
     this._meals.push(meal);
