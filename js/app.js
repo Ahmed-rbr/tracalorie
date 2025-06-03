@@ -1,6 +1,6 @@
 class CalorieTracker {
   constructor() {
-    this._calorirLimit = 2000;
+    this._caloriesLimit = 2000;
     this._totalCalories = 0;
     this._meals = [];
     this._workouts = [];
@@ -9,6 +9,7 @@ class CalorieTracker {
     this._desplayCalorieLimit();
     this._desplayCaloriesBurned();
     this._desplayCaloriesRemaining();
+    this._desplayCaloriesProgress();
   }
   addMeal(meal) {
     this._meals.push(meal);
@@ -29,34 +30,47 @@ class CalorieTracker {
   }
   _desplayCalorieLimit() {
     const calorieLimit = document.getElementById("calories-limit");
-    calorieLimit.textContent = this._calorirLimit;
+    calorieLimit.textContent = this._caloriesLimit;
   }
   _desplayCaloriesConsumed() {
     const caloriesConsumed = document.getElementById("calories-consumed");
-    const totalConsumed = this._meals.reduce((total, meal) => {
-      return total + meal.calories;
-    }, 0);
+    const totalConsumed = this._meals.reduce(
+      (total, meal) => total + meal.calories,
+      0
+    );
     caloriesConsumed.textContent = totalConsumed;
   }
   _desplayCaloriesBurned() {
     const caloriesBurned = document.getElementById("calories-burned");
-    const totalBurend = this._workouts.reduce((total, workout) => {
-      return total + workout.calories;
-    }, 0);
+    const totalBurend = this._workouts.reduce(
+      (total, workout) => total + workout.calories,
+      0
+    );
     caloriesBurned.textContent = totalBurend;
   }
   _desplayCaloriesRemaining() {
     const caloriesRemaining = document.getElementById("calories-remaining");
-    const remaining = this._calorirLimit - this._totalCalories;
+    const remaining = this._caloriesLimit - this._totalCalories;
 
     caloriesRemaining.textContent = remaining;
+  }
+  _desplayCaloriesProgress() {
+    const progress = document.getElementById("calorie-progress");
+    const progressWidth = (this._totalCalories / this._caloriesLimit) * 100;
+    progress.style.width = progressWidth + "%";
+    progress.textContent = Math.min(progressWidth, 100).toFixed(0) + "%";
+
+    progress.classList.add(progressWidth >= 100 ? "bg-danger" : "bg-success");
+    progress.classList.remove(
+      progressWidth >= 100 ? "bg-success" : "bg-danger"
+    );
   }
   _render() {
     this._desplayCaloriesTotal();
     this._desplayCaloriesConsumed();
-    this._desplayCalorieLimit();
     this._desplayCaloriesBurned();
     this._desplayCaloriesRemaining();
+    this._desplayCaloriesProgress();
   }
 }
 
@@ -77,13 +91,12 @@ class Workout {
 }
 const traker = new CalorieTracker();
 
-const meal1 = new Meal("tomat", 100);
-const workout1 = new Workout("jari", 200);
+const meal1 = new Meal("tomat", 200);
+const workout1 = new Workout("jari", 67);
 const meal2 = new Meal("batat", 200);
 
-traker.addMeal(meal2);
-traker.addMeal(meal2);
 traker.addMeal(meal1);
+traker.addMeal(meal2);
 
 traker.addWorkout(workout1);
 console.log(traker._totalCalories);
