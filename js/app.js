@@ -57,8 +57,8 @@ class CalorieTracker {
     caloriesRemaining.textContent = remaining;
 
     const cardRemaining = caloriesRemaining.parentElement.parentElement;
+    cardRemaining.classList.remove("bg-light", "bg-danger");
     cardRemaining.classList.add(remaining > 0 ? "bg-light" : "bg-danger");
-    cardRemaining.classList.remove(remaining > 0 ? "bg-danger" : "bg-light");
   }
   _desplayCaloriesProgress() {
     const progress = document.getElementById("calorie-progress");
@@ -116,13 +116,23 @@ class CalorieTracker {
               </div>`;
     cards.appendChild(card);
   }
-  removeMeal(id, card) {
+  removeMeal(id) {
     this._meals = this._meals.filter((meal) => meal.id !== id);
-    this._totalCalories -= parseInt(card.querySelector(".dd").textContent);
+    const meal = this._meals.find((m) => m.id === id);
+    if (meal) this._totalCalories -= meal.calories;
   }
-  removeWorkout(id, card) {
+  removeWorkout(id) {
     this._workouts = this._workouts.filter((workout) => workout.id !== id);
-    this._totalCalories += parseInt(card.querySelector(".dd").textContent);
+    const meal = this._meals.find((m) => m.id === id);
+    if (meal) this._totalCalories -= meal.calories;
+  }
+  reset() {
+    this._totalCalories = 0;
+    this._meals.length = 0;
+    this._workouts.length = 0;
+  }
+  _setLimit(newLimit) {
+    this._caloriesLimit = newLimit;
   }
   _render() {
     this._desplayCaloriesTotal();
@@ -175,6 +185,9 @@ class App {
     document
       .querySelector("#reset")
       .addEventListener("click", this._reset.bind(this));
+    document
+      .querySelector("#limit-form")
+      .addEventListener("submit", this._setLimit.bind(this));
   }
 
   _newItem(e, type) {
@@ -218,8 +231,8 @@ class App {
         console.log(id);
 
         type === "meal"
-          ? this._tracker.removeMeal(id, card)
-          : this._tracker.removeWorkout(id, card);
+          ? this._tracker.removeMeal(id)
+          : this._tracker.removeWorkout(id);
         card.remove();
         this._tracker._render();
       }
@@ -238,7 +251,10 @@ class App {
       return;
     }
     cards.forEach((card) => {
-      const cardName = card.textContent.toLowerCase().trim();
+      const cardName = card
+        .querySelector("h4")
+        .textContent.toLowerCase()
+        .trim();
       if (cardName.includes(inputSearch)) {
         card.style.display = "block";
       } else {
@@ -248,17 +264,23 @@ class App {
   }
 
   _reset() {
-    confirm("are you sure you  want to rest all ?");
-
-    if (confirm) {
-      this._tracker._totalCalories = 0;
-      this._tracker._caloriesLimit = 2000;
-      this._tracker._meals.length = 0;
-      this._tracker._workouts.length = 0;
+    if (confirm("are you sure...?")) {
+      this._tracker.reset();
       document.querySelector("#workout-items").innerHTML = "";
       document.querySelector("#meal-items").innerHTML = "";
       this._tracker._render();
     }
+  }
+  _setLimit(e) {
+    e.preventDefault();
+    const newLimit = parseInt(document.getElementById("limit").value);
+    if (isNaN(newLimit) || newLimit <= 0) {
+      alert("Please fill in all information correctly.");
+      return;
+    }
+
+    this._tracker._setLimit(newLimit);
+    this._tracker._render();
   }
 }
 
