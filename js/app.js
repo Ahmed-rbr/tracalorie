@@ -3,7 +3,7 @@ class CalorieTracker {
     this._caloriesLimit = Storeg.getCaloreLimite();
     this._totalCalories = Storeg.getTotalCalories();
     this._meals = Storeg.getMeals();
-    this._workouts = [];
+    this._workouts = Storeg.getWorkouts();
     this._desplayCaloriesTotal();
     this._desplayCaloriesConsumed();
     this._desplayCalorieLimit();
@@ -25,6 +25,7 @@ class CalorieTracker {
     this._workouts.push(workout);
     this._totalCalories -= workout.calories;
     Storeg.updateTotalCalories(this._totalCalories);
+    Storeg.saveWorkouts(workout);
 
     this._displayWorkout(workout);
     this._render();
@@ -49,10 +50,13 @@ class CalorieTracker {
   }
   _desplayCaloriesBurned() {
     const caloriesBurned = document.getElementById("calories-burned");
-    const totalBurend = this._workouts.reduce(
-      (total, workout) => total + workout.calories,
-      0
-    );
+    const totalBurend = this._workouts.reduce((total, workout) => {
+      if (workout && typeof workout.calories === "number") {
+        return total + workout.calories;
+      }
+
+      return total;
+    }, 0);
     caloriesBurned.textContent = parseInt(totalBurend);
   }
   _desplayCaloriesRemaining() {
@@ -99,6 +103,15 @@ class CalorieTracker {
   }
 
   _displayWorkout(workout) {
+    if (
+      !workout ||
+      !workout.id ||
+      !workout.name ||
+      typeof workout.calories !== "number"
+    ) {
+      console.error("Invalid workout data", workout);
+      return;
+    }
     const cards = document.querySelector("#workout-items");
 
     const card = document.createElement("div");
@@ -154,6 +167,7 @@ class CalorieTracker {
 
   loadItems() {
     this._meals.forEach((meal) => this._displayMeal(meal));
+    this._workouts.forEach((workout) => this._displayWorkout(workout));
   }
   _render() {
     this._desplayCaloriesTotal();
@@ -224,9 +238,35 @@ class Storeg {
   }
 
   static saveMeal(meal) {
+    if (!meal || typeof meal.calories !== "number") {
+      console.error("Invalid meal data");
+      return;
+    }
     const meals = Storeg.getMeals();
     meals.push(meal);
     localStorage.setItem("meals", JSON.stringify(meals));
+  }
+
+  static getWorkouts() {
+    let workouts;
+
+    if (localStorage.getItem("workouts") === null) {
+      workouts = [];
+    } else {
+      workouts = JSON.parse(localStorage.getItem("workouts"));
+    }
+
+    return workouts;
+  }
+
+  static saveWorkouts(workout) {
+    if (!workout || typeof workout.calories !== "number") {
+      console.error("Invalid workout data");
+      return;
+    }
+    const workouts = Storeg.getWorkouts();
+    workouts.push(workout);
+    localStorage.setItem("workouts", JSON.stringify(workouts));
   }
 }
 
