@@ -140,6 +140,7 @@ class CalorieTracker {
   _setLimit(newLimit) {
     this._caloriesLimit = newLimit;
     this._desplayCalorieLimit();
+    this._render();
   }
   _render() {
     this._desplayCaloriesTotal();
@@ -278,14 +279,18 @@ class App {
   }
   _setLimit(e) {
     e.preventDefault();
-    const newLimit = parseInt(document.getElementById("limit").value);
-    if (isNaN(newLimit) || newLimit <= 0) {
+    let newLimit = document.getElementById("limit");
+    if (isNaN(newLimit.value) || newLimit.value <= 0) {
       alert("Please fill in all information correctly.");
       return;
     }
 
-    this._tracker._setLimit(newLimit);
-    this._tracker._render();
+    this._tracker._setLimit(parseInt(newLimit.value));
+    newLimit.value = "";
+    const modelEl = document.getElementById("limit-modal");
+
+    const modal = bootstrap.Modal.getInstance(modelEl);
+    modal.hide();
   }
 }
 
