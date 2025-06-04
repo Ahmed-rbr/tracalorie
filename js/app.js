@@ -96,59 +96,39 @@ class App {
     this._tracker = new CalorieTracker();
     document
       .getElementById("meal-form")
-      .addEventListener("submit", (e) => this._newMeal(e));
+      .addEventListener("submit", (e) => this._newItem(e, "meal"));
 
     document
       .getElementById("workout-form")
-      .addEventListener("submit", (e) => this._newWorkout(e));
+      .addEventListener("submit", (e) => this._newItem(e, "workout"));
   }
-
-  _newMeal(e) {
+  _newItem(e, type) {
     e.preventDefault();
 
-    const mealForm = document.getElementById("meal-form");
-    const mealName = document.getElementById("meal-name").value;
-    const mealCalories = parseInt(
-      document.getElementById("meal-calories").value
+    const Form = document.getElementById(`${type}-form`);
+    const name = document.getElementById(`${type}-name`).value;
+    const calories = parseInt(
+      document.getElementById(`${type}-calories`).value
     );
-    if (
-      mealName === "" ||
-      isNaN(mealCalories) ||
-      !isNaN(mealName) ||
-      mealCalories <= 0
-    ) {
+    if (name === "" || isNaN(calories) || !isNaN(name) || calories <= 0) {
       alert("Please fill in all information correctly.");
       return;
     }
+    if (type === "meal") {
+      const meal = new Meal(name, calories);
 
-    const meal = new Meal(mealName, mealCalories);
+      this._tracker.addMeal(meal);
+    } else {
+      const workout = new Workout(name, calories);
 
-    this._tracker.addMeal(meal);
-
-    mealForm.reset();
-  }
-
-  _newWorkout(e) {
-    e.preventDefault();
-    const workoutForm = document.getElementById("workout-form");
-    const { elements } = workoutForm;
-    const workoutCalories = parseInt(elements["workout-calories"].value);
-    const workoutName = elements["workout-name"].value;
-    if (
-      workoutName.trim() === "" ||
-      isNaN(workoutCalories) ||
-      !isNaN(workoutName) ||
-      workoutCalories <= 0
-    ) {
-      alert("Please fill in all information correctly.");
-      return;
+      this._tracker.addWorkout(workout);
     }
 
-    const workout = new Workout(workoutName, workoutCalories);
-
-    this._tracker.addWorkout(workout);
-
-    workoutForm.reset();
+    Form.reset();
+    const collapseMeal = document.getElementById(`collapse-${type}`);
+    const bsCollapse = new bootstrap.Collapse(collapseMeal, {
+      toggle: true,
+    });
   }
 }
 
