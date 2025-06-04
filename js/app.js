@@ -14,12 +14,15 @@ class CalorieTracker {
   addMeal(meal) {
     this._meals.push(meal);
     this._totalCalories += meal.calories;
+    this._displayMeal(meal);
+
     this._render();
   }
 
   addWorkout(workout) {
     this._workouts.push(workout);
     this._totalCalories -= workout.calories;
+    this._displayWorkout(workout);
     this._render();
   }
 
@@ -67,6 +70,60 @@ class CalorieTracker {
     progress.classList.remove("bg-success", "bg-danger");
     progress.classList.add(progressWidth >= 100 ? "bg-danger" : "bg-success");
   }
+
+  _displayMeal(meal) {
+    const cards = document.querySelector("#meal-items");
+
+    const card = document.createElement("div");
+    card.classList.add("card", "my-2");
+    card.dataset.id = meal.id;
+
+    card.innerHTML = ` <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                  <h4 class="mx-1">${meal.name}</h4>
+                  <div
+                    class="fs-1 dd bg-primary text-white text-center rounded-2 px-2 px-sm-5"
+                  >
+                    ${meal.calories}
+                  </div>
+                  <button class="delete btn btn-danger btn-sm mx-2">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+              </div>`;
+    cards.appendChild(card);
+  }
+
+  _displayWorkout(workout) {
+    const cards = document.querySelector("#workout-items");
+
+    const card = document.createElement("div");
+    card.classList.add("card", "my-2");
+    card.dataset.id = workout.id;
+    card.innerHTML = `
+              <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between">
+                  <h4 class="mx-1">${workout.name}</h4>
+                  <div
+                    class="fs-1 dd bg-secondary text-white text-center rounded-2 px-2 px-sm-5"
+                  >
+                    ${workout.calories}
+                  </div>
+                  <button class="delete btn btn-danger btn-sm mx-2">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+              </div>`;
+    cards.appendChild(card);
+  }
+  removeMeal(id, card) {
+    this._meals = this._meals.filter((meal) => meal.id !== id);
+    this._totalCalories -= parseInt(card.querySelector(".dd").textContent);
+  }
+  removeWorkout(id, card) {
+    this._workouts = this._workouts.filter((workout) => workout.id !== id);
+    this._totalCalories += parseInt(card.querySelector(".dd").textContent);
+  }
   _render() {
     this._desplayCaloriesTotal();
     this._desplayCaloriesConsumed();
@@ -101,7 +158,21 @@ class App {
     document
       .getElementById("workout-form")
       .addEventListener("submit", (e) => this._newItem(e, "workout"));
+    document
+      .getElementById("workout-items")
+      .addEventListener("click", (e) => this._removeItem(e, "workout"));
+    document
+      .getElementById("meal-items")
+      .addEventListener("click", (e) => this._removeItem(e, "meal"));
+
+    document
+      .querySelector("#filter-meals")
+      .addEventListener("keyup", this._filteritems.bind(this, "meal"));
+    document
+      .querySelector("#filter-workouts")
+      .addEventListener("keyup", this._filteritems.bind(this, "workout"));
   }
+
   _newItem(e, type) {
     e.preventDefault();
 
@@ -128,6 +199,48 @@ class App {
     const collapseMeal = document.getElementById(`collapse-${type}`);
     const bsCollapse = new bootstrap.Collapse(collapseMeal, {
       toggle: true,
+    });
+  }
+
+  _removeItem(e, type) {
+    if (
+      e.target.classList.contains("delete") ||
+      e.target.classList.contains("fa-xmark")
+    ) {
+      if (confirm("are you sure?")) {
+        const id = e.target.closest(".card").getAttribute("data-id");
+        const card = e.target.closest(".card");
+
+        console.log(id);
+
+        type === "meal"
+          ? this._tracker.removeMeal(id, card)
+          : this._tracker.removeWorkout(id, card);
+        card.remove();
+        this._tracker._render();
+      }
+    }
+  }
+
+  _filteritems(type) {
+    const inputSearch = document
+      .querySelector(`#filter-${type}s`)
+      .value.toLowerCase()
+      .trim();
+    const items = document.querySelector(`#${type}-items`);
+    const cards = items.querySelectorAll(".card");
+    if (items.children.length === 0) {
+      alert("no items to search");
+      return;
+    }
+    console.log(cards);
+    cards.forEach((card) => {
+      const cardName = card.textContent.toLowerCase().trim();
+      if (cardName.includes(inputSearch)) {
+        card.style.display = "block";
+      } else {
+        card.style.display = "none";
+      }
     });
   }
 }
