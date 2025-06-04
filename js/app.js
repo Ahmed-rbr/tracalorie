@@ -60,13 +60,12 @@ class CalorieTracker {
   _desplayCaloriesProgress() {
     const progress = document.getElementById("calorie-progress");
     const progressWidth = (this._totalCalories / this._caloriesLimit) * 100;
-    progress.style.width = progressWidth + "%";
-    progress.textContent = Math.min(progressWidth, 100).toFixed(0) + "%";
+    const positivValue = Math.min(Math.max(progressWidth, 0), 100);
+    progress.textContent = positivValue.toFixed(0) + "%";
+    progress.style.width = positivValue.toFixed(0) + "%";
 
+    progress.classList.remove("bg-success", "bg-danger");
     progress.classList.add(progressWidth >= 100 ? "bg-danger" : "bg-success");
-    progress.classList.remove(
-      progressWidth >= 100 ? "bg-success" : "bg-danger"
-    );
   }
   _render() {
     this._desplayCaloriesTotal();
@@ -118,7 +117,7 @@ class App {
       !isNaN(mealName) ||
       mealCalories <= 0
     ) {
-      alert("Please fill in all information.");
+      alert("Please fill in all information correctly.");
       return;
     }
 
@@ -141,7 +140,7 @@ class App {
       !isNaN(workoutName) ||
       workoutCalories <= 0
     ) {
-      alert("Please fill in all information.");
+      alert("Please fill in all information correctly.");
       return;
     }
 
