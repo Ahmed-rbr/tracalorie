@@ -117,15 +117,21 @@ class CalorieTracker {
     cards.appendChild(card);
   }
   removeMeal(id) {
-    this._meals = this._meals.filter((meal) => meal.id !== id);
     const meal = this._meals.find((m) => m.id === id);
-    if (meal) this._totalCalories -= meal.calories;
+    if (meal) {
+      this._totalCalories -= meal.calories;
+      this._meals = this._meals.filter((m) => m.id !== id);
+    }
   }
+
   removeWorkout(id) {
-    this._workouts = this._workouts.filter((workout) => workout.id !== id);
-    const meal = this._meals.find((m) => m.id === id);
-    if (meal) this._totalCalories -= meal.calories;
+    const workout = this._workouts.find((w) => w.id === id);
+    if (workout) {
+      this._totalCalories += workout.calories;
+      this._workouts = this._workouts.filter((w) => w.id !== id);
+    }
   }
+
   reset() {
     this._totalCalories = 0;
     this._meals.length = 0;
@@ -133,6 +139,7 @@ class CalorieTracker {
   }
   _setLimit(newLimit) {
     this._caloriesLimit = newLimit;
+    this._desplayCalorieLimit();
   }
   _render() {
     this._desplayCaloriesTotal();
@@ -227,8 +234,6 @@ class App {
       if (confirm("are you sure?")) {
         const id = e.target.closest(".card").getAttribute("data-id");
         const card = e.target.closest(".card");
-
-        console.log(id);
 
         type === "meal"
           ? this._tracker.removeMeal(id)
