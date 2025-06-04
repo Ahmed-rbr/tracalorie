@@ -49,7 +49,7 @@ class CalorieTracker {
       (total, workout) => total + workout.calories,
       0
     );
-    caloriesBurned.innerHTML = parseInt(totalBurend);
+    caloriesBurned.textContent = parseInt(totalBurend);
   }
   _desplayCaloriesRemaining() {
     const caloriesRemaining = document.getElementById("calories-remaining");
@@ -171,6 +171,10 @@ class App {
     document
       .querySelector("#filter-workouts")
       .addEventListener("keyup", this._filteritems.bind(this, "workout"));
+
+    document
+      .querySelector("#reset")
+      .addEventListener("click", this._reset.bind(this));
   }
 
   _newItem(e, type) {
@@ -233,7 +237,6 @@ class App {
       alert("no items to search");
       return;
     }
-    console.log(cards);
     cards.forEach((card) => {
       const cardName = card.textContent.toLowerCase().trim();
       if (cardName.includes(inputSearch)) {
@@ -242,6 +245,20 @@ class App {
         card.style.display = "none";
       }
     });
+  }
+
+  _reset() {
+    confirm("are you sure you  want to rest all ?");
+
+    if (confirm) {
+      this._tracker._totalCalories = 0;
+      this._tracker._caloriesLimit = 2000;
+      this._tracker._meals.length = 0;
+      this._tracker._workouts.length = 0;
+      document.querySelector("#workout-items").innerHTML = "";
+      document.querySelector("#meal-items").innerHTML = "";
+      this._tracker._render();
+    }
   }
 }
 
