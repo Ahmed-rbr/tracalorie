@@ -26,11 +26,11 @@ class CalorieTracker {
   _desplayCaloriesTotal() {
     const totalCalories = document.getElementById("calories-total");
 
-    totalCalories.textContent = this._totalCalories;
+    totalCalories.textContent = +this._totalCalories;
   }
   _desplayCalorieLimit() {
     const calorieLimit = document.getElementById("calories-limit");
-    calorieLimit.textContent = this._caloriesLimit;
+    calorieLimit.textContent = +this._caloriesLimit;
   }
   _desplayCaloriesConsumed() {
     const caloriesConsumed = document.getElementById("calories-consumed");
@@ -38,7 +38,7 @@ class CalorieTracker {
       (total, meal) => total + meal.calories,
       0
     );
-    caloriesConsumed.textContent = totalConsumed;
+    caloriesConsumed.textContent = parseInt(totalConsumed);
   }
   _desplayCaloriesBurned() {
     const caloriesBurned = document.getElementById("calories-burned");
@@ -46,7 +46,7 @@ class CalorieTracker {
       (total, workout) => total + workout.calories,
       0
     );
-    caloriesBurned.textContent = totalBurend;
+    caloriesBurned.innerHTML = parseInt(totalBurend);
   }
   _desplayCaloriesRemaining() {
     const caloriesRemaining = document.getElementById("calories-remaining");
@@ -92,14 +92,65 @@ class Workout {
     this.calories = calories;
   }
 }
-const traker = new CalorieTracker();
+class App {
+  constructor() {
+    this._tracker = new CalorieTracker();
+    document
+      .getElementById("meal-form")
+      .addEventListener("submit", (e) => this._newMeal(e));
 
-const meal1 = new Meal("tomat", 1git 000);
-const workout1 = new Workout("jari", 320);
-const meal2 = new Meal("batat", 750);
+    document
+      .getElementById("workout-form")
+      .addEventListener("submit", (e) => this._newWorkout(e));
+  }
 
-traker.addMeal(meal1);
-traker.addMeal(meal2);
+  _newMeal(e) {
+    e.preventDefault();
 
-traker.addWorkout(workout1);
-console.log(traker._totalCalories);
+    const mealForm = document.getElementById("meal-form");
+    const mealName = document.getElementById("meal-name").value;
+    const mealCalories = parseInt(
+      document.getElementById("meal-calories").value
+    );
+    if (
+      mealName === "" ||
+      isNaN(mealCalories) ||
+      !isNaN(mealName) ||
+      mealCalories <= 0
+    ) {
+      alert("Please fill in all information.");
+      return;
+    }
+
+    const meal = new Meal(mealName, mealCalories);
+
+    this._tracker.addMeal(meal);
+
+    mealForm.reset();
+  }
+
+  _newWorkout(e) {
+    e.preventDefault();
+    const workoutForm = document.getElementById("workout-form");
+    const { elements } = workoutForm;
+    const workoutCalories = parseInt(elements["workout-calories"].value);
+    const workoutName = elements["workout-name"].value;
+    if (
+      workoutName.trim() === "" ||
+      isNaN(workoutCalories) ||
+      !isNaN(workoutName) ||
+      workoutCalories <= 0
+    ) {
+      alert("Please fill in all information.");
+      return;
+    }
+
+    const workout = new Workout(workoutName, workoutCalories);
+
+    this._tracker.addWorkout(workout);
+
+    workoutForm.reset();
+  }
+}
+
+const app = new App();
