@@ -103,15 +103,6 @@ class CalorieTracker {
   }
 
   _displayWorkout(workout) {
-    if (
-      !workout ||
-      !workout.id ||
-      !workout.name ||
-      typeof workout.calories !== "number"
-    ) {
-      console.error("Invalid workout data", workout);
-      return;
-    }
     const cards = document.querySelector("#workout-items");
 
     const card = document.createElement("div");
@@ -140,6 +131,7 @@ class CalorieTracker {
       Storeg.updateTotalCalories(this._totalCalories);
 
       this._meals = this._meals.filter((m) => m.id !== id);
+      Storeg.removeMeal(id);
     }
   }
 
@@ -150,6 +142,7 @@ class CalorieTracker {
       Storeg.updateTotalCalories(this._totalCalories);
 
       this._workouts = this._workouts.filter((w) => w.id !== id);
+      Storeg.removeWorkout(id);
     }
   }
 
@@ -157,6 +150,8 @@ class CalorieTracker {
     this._totalCalories = 0;
     this._meals.length = 0;
     this._workouts.length = 0;
+    Storeg.clearAll();
+    this._render();
   }
   _setLimit(newLimit) {
     this._caloriesLimit = newLimit;
@@ -267,6 +262,27 @@ class Storeg {
     const workouts = Storeg.getWorkouts();
     workouts.push(workout);
     localStorage.setItem("workouts", JSON.stringify(workouts));
+  }
+
+  static removeMeal(id) {
+    let meals = Storeg.getMeals();
+
+    meals = meals.filter((meal) => meal.id !== id);
+    localStorage.setItem("meals", JSON.stringify(meals));
+  }
+
+  static removeWorkout(id) {
+    let workouts = Storeg.getMeals();
+
+    workouts = workouts.filter((workout) => workout.id !== id);
+    localStorage.setItem("workouts", JSON.stringify(workouts));
+  }
+
+  static clearAll() {
+    localStorage.removeItem("workouts");
+    localStorage.removeItem("meals");
+    localStorage.removeItem("caloriLimit");
+    localStorage.removeItem("totalCalories");
   }
 }
 
@@ -381,7 +397,10 @@ class App {
       this._tracker.reset();
       document.querySelector("#workout-items").innerHTML = "";
       document.querySelector("#meal-items").innerHTML = "";
-      this._tracker._render();
+      document.querySelector("#calories-limit").innerHTML =
+        Storeg.getCaloreLimite();
+      document.querySelector("#calories-remaining").innerHTML =
+        Storeg.getCaloreLimite();
     }
   }
   _setLimit(e) {
